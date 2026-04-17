@@ -138,3 +138,4 @@ MIT License
 
 - Piwigo community  
 - Familink API  
+- OpenAI / ChatGPT
