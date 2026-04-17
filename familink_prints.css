@@ -1,0 +1,269 @@
+/* Familink Prints — style sobre, peu intrusif, compatible avec les thèmes Piwigo */
+
+.familink-ui {
+  margin-top: 1rem;
+}
+
+.familink-card {
+  border: 1px solid rgba(128, 128, 128, 0.25);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.familink-title {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.familink-subtitle {
+  margin: 0 0 1rem 0;
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
+
+.familink-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.familink-print-btn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.familink-print-btn form {
+  display: inline-block;
+  margin: 0;
+}
+
+.familink-meta {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.familink-muted {
+  opacity: 0.75;
+}
+
+.familink-table-wrap {
+  overflow-x: auto;
+}
+
+.familink-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.familink-table th,
+.familink-table td {
+  padding: 0.7rem 0.6rem;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.18);
+  text-align: left;
+}
+
+.familink-table th {
+  font-weight: 600;
+}
+
+.familink-photo-cell {
+  min-width: 220px;
+}
+
+.familink-photo-title {
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.familink-photo-file {
+  font-size: 0.88rem;
+  opacity: 0.75;
+  word-break: break-word;
+}
+
+.familink-qty {
+  width: 84px;
+}
+
+.familink-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 0.9rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.familink-form-grid .familink-field-full {
+  grid-column: 1 / -1;
+}
+
+.familink-field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.familink-field input,
+.familink-field select,
+.familink-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.familink-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.familink-summary {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.familink-log {
+  padding: 0.9rem;
+  border: 1px solid rgba(128, 128, 128, 0.25);
+  border-radius: 8px;
+  max-height: 360px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.familink-empty {
+  padding: 1rem 0;
+  opacity: 0.85;
+}
+
+@media (max-width: 700px) {
+  .familink-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .familink-toolbar {
+    align-items: flex-start;
+  }
+}
+
+.familink-photo-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.familink-thumb-wrap {
+  flex: 0 0 auto;
+}
+
+.familink-thumb {
+  display: block;
+  width: 120px;
+  max-width: 120px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 128, 128, 0.22);
+  object-fit: cover;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.api-debug {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 100%;
+}
+
+.debug-card {
+  background: #1e1e1e;
+  border-radius: 10px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.debug-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #f0f0f0;
+}
+
+.curl-log {
+  background: #111;
+  color: #ddd;
+  padding: 10px;
+  border-radius: 8px;
+
+  font-family: monospace;
+  font-size: 12px;
+
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.curl-log-large {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.infos {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.familink-ui select {
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+.familink-cart-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.familink-actions-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.familink-actions-right {
+  display: flex;
+  align-items: center;
+}
+
+.familink-inline-form {
+  display: inline;
+}
+
+.button-red {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  opacity: 0.9;
+}
+
+.button-red:hover {
+  background-color: #c9302c;
+  opacity: 1;
+}

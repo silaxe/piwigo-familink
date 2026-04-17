@@ -1,0 +1,9 @@
+*.log
+*.tmp
+*.cache
+.DS_Store
+Thumbs.db
+
+config.inc.php
+local/
+cache/
