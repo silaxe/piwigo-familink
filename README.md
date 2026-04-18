@@ -130,7 +130,7 @@ This plugin was designed and developed with the assistance of **ChatGPT**, used 
 
 ## 📄 License
 
-MIT License
+GNU General Public License v3.0
 
 ---
 
