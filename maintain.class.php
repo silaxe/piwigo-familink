@@ -5,13 +5,11 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 class familink_prints_maintain extends PluginMaintain
 {
-  public function install($plugin_version, &$errors = array())
+private function createTables()
   {
     global $prefixeTable;
-
     $sql = file_get_contents(dirname(__FILE__) . '/init_db.sql');
     $sql = str_replace('piwigo_', $prefixeTable, $sql);
-
     foreach (preg_split('/;\s*[\r\n]+/', trim($sql)) as $query) {
       $query = trim($query);
       if ($query !== '') {
@@ -20,8 +18,14 @@ class familink_prints_maintain extends PluginMaintain
     }
   }
 
+  public function install($plugin_version, &$errors = array())
+  {
+    $this->createTables();
+  }
+
   public function activate($plugin_version, &$errors = array())
   {
+    $this->createTables();
   }
 
   public function update($old_version, $new_version, &$errors = array())
