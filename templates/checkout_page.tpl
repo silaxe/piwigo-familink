@@ -80,8 +80,36 @@
           </div>
 
           <div class="familink-field">
-            <label for="country_code">Pays (ISO-2)*</label>
-            <input id="country_code" type="text" name="country_code" value="" required maxlength="2">
+            <label for="country_code">Pays</label>
+            <select id="country_code" name="country_code" required>
+              <option value="FR" selected>France</option>
+              <option value="BE">Belgique</option>
+              <option value="CH">Suisse</option>
+              <option value="LU">Luxembourg</option>
+              <option value="DE">Allemagne</option>
+              <option value="ES">Espagne</option>
+              <option value="IT">Italie</option>
+              <option value="PT">Portugal</option>
+              <option value="NL">Pays-Bas</option>
+              <option value="GB">Royaume-Uni</option>
+              <option value="IE">Irlande</option>
+              <option value="AT">Autriche</option>
+              <option value="PL">Pologne</option>
+              <option value="SE">Suède</option>
+              <option value="DK">Danemark</option>
+              <option value="FI">Finlande</option>
+              <option value="NO">Norvège</option>
+              <option value="CA">Canada</option>
+              <option value="US">États-Unis</option>
+              <option value="MA">Maroc</option>
+              <option value="TN">Tunisie</option>
+              <option value="DZ">Algérie</option>
+              <option value="GP">Guadeloupe</option>
+              <option value="MQ">Martinique</option>
+              <option value="RE">La Réunion</option>
+              <option value="NC">Nouvelle-Calédonie</option>
+              <option value="PF">Polynésie française</option>
+            </select>
           </div>
         </div>
 

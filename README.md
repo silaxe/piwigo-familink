@@ -23,16 +23,17 @@ A lightweight plugin for **Piwigo** that allows users to order photo prints dire
 The plugin is built around a simple 3-step architecture:
 
 1. **Piwigo Plugin Layer**
+
    * Adds UI elements (cart, buttons, checkout)
    * Stores selected photos in a database table
-
 2. **Bridge Layer**
+
    * Generates secure, temporary URLs to access the images Familink will fetch
    * Ensures controlled external access
    * Serves either the original photo, or a cached version with white
      borders added if its aspect ratio doesn't match the chosen print format
-
 3. **Order Processing**
+
    * Sends selected images and user data to the Familink API
    * Handles sandbox or production modes
 
@@ -70,17 +71,32 @@ bridge URLs (see `include/image.inc.php`):
 
 ## ⚙️ Installation
 
-1. Copy the plugin folder into your Piwigo installation:
-```
-plugins/familink_prints/
+⚠️ **The installation folder must be named exactly `familink_prints`**,
+regardless of the GitHub repository name (`piwigo-familink`). The plugin's
+code (`maintain.class.php`, internal URL generation, admin configuration
+link) relies on the folder name under `plugins/` — a different name will
+cause an activation error or a disabled "Configure" button.
+
+**If you use `git clone`**, specify the target folder name explicitly:
+```bash
+git clone --branch V1.0.2 https://github.com/silaxe/piwigo-familink.git plugins/familink_prints
 ```
 
-2. Activate the plugin from the Piwigo admin panel
+**If you download an archive from the GitHub "Releases" page**, use the
+`familink_prints-X.Y.Z.zip` asset attached to the release (its internal
+folder is already named `familink_prints/`) — **not** the generic
+"Code → Download ZIP" button, which produces an archive named after the
+repository (`piwigo-familink-main.zip`) and would result in a wrongly
+named folder.
 
-3. Configure:
+Once `plugins/familink_prints/` is in place:
+
+1. Activate the plugin from the Piwigo admin panel
+2. Configure:
+
    * Familink API key
    * Sandbox mode (recommended for testing)
-   * White border padding (enabled by default)
+   * Automatic white border padding (enabled by default)
 
 ---
 
@@ -99,10 +115,11 @@ The plugin provides an admin interface to:
 ## 🧪 Sandbox vs Production
 
 * **Sandbox mode**:
+
   + No real prints are sent
   + Useful for testing and development
-
 * **Production mode**:
+
   + Real orders are processed and shipped
 
 ---
@@ -154,39 +171,40 @@ familink_prints/
 
 ## 📝 Changelog
 
+### 1.0.3
+
+* **Fix (critical):** adding a photo to the cart returned a 404 error
+  on any Piwigo installation not served from the domain root. The
+  post-add redirect URL concatenated `get_absolute_root_url()` (which
+  already includes the Piwigo subfolder) with `$_SERVER['REQUEST_URI']`
+  (which already includes that same subfolder), producing a duplicated
+  path segment. The item was still correctly added to the cart; only
+  the redirect afterwards failed.
+* **Improved:** the free-text "Pays (ISO-2)" field on the checkout page
+  was replaced with a country dropdown, removing the need for the user
+  to know or type an ISO-3166-1 alpha-2 code by hand.
+
 ### 1.0.2
 
-* **New:** automatic white border padding for photos that don't match
-  the exact print ratio (see above).
 * **Fix (critical):** the sandbox flag sent to the Familink API always
   read a non-existent `$conf['sandbox']` key instead of
   `$conf['familink_sandbox']`, so orders were always processed as
   production regardless of the admin "sandbox mode" checkbox.
 * **Fix:** `FAMILINK_RETURN_URL` was never actually assigned to the
-  photo-button template.
+  photo-button template due to a misplaced comma in the template
+  variables array.
 * **Fix:** removed duplicated/dead dispatch logic between the `init`
   and `loc_begin_page_header` hooks.
 * **Fix:** added the `Has Settings: true` header field, required since
   Piwigo 11 for the plugin's "Configuration" button to be enabled
   (orange) instead of greyed out, in addition to the existing
   `get_admin_plugin_menu_links` hook used for older Piwigo versions.
+* **New:** automatic white border padding for photos that don't match
+  the exact print ratio (see above).
 
-### 1.0.1
+### 0.1.0
 
-* **Fix (critical):** the database tables are now properly created upon plugin activation.
-
-### 1.0.0
-
-Initial version. Includes the following features:
-
-* Add photos to a cart from the Piwigo interface
-* Select print formats (10x15 cm, 15x20 cm)
-* Adjust quantities directly in the cart
-* Simple checkout form with delivery address
-* Choose print finish (e.g. glossy)
-* Secure temporary URLs for image transfer
-* Server-side order processing
-* Empty cart functionality
+* Initial version.
 
 ---
 

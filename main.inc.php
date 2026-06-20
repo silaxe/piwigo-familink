@@ -1,6 +1,6 @@
 <?php
 /*
-Version: 1.0.2
+Version: 1.0.3
 Plugin Name: Familink Prints
 Author: You
 Description: Piwigo cart + temporary URLs + Familink sandbox checkout for 10x15 / 15x20 prints,
@@ -34,6 +34,27 @@ function familink_admin_menu($menu)
   return $menu;
 }
 
+/**
+ * Construit l'URL absolue de la page courante à partir des variables
+ * serveur, sans repasser par get_absolute_root_url(). C'est volontaire :
+ * $_SERVER['REQUEST_URI'] contient déjà le sous-dossier d'installation
+ * de Piwigo (ex. /piwigo/picture.php?/123) quand Piwigo n'est pas
+ * installé à la racine du domaine. Concaténer get_absolute_root_url()
+ * (qui contient lui aussi ce sous-dossier) avec REQUEST_URI dupliquait
+ * ce segment de chemin et produisait une URL invalide (404).
+ */
+function familink_prints_current_absolute_url()
+{
+  $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+
+  $scheme = $is_https ? 'https' : 'http';
+  $host = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '');
+  $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+
+  return $scheme . '://' . $host . $uri;
+}
+
 function familink_prints_picture_hook()
 {
   global $template, $page;
@@ -53,9 +74,11 @@ function familink_prints_picture_hook()
     'FAMILINK_ADD_URL' => familink_prints_url('add'),
     'FAMILINK_IMAGE_ID' => $image_id,
     'FAMILINK_CART_URL' => familink_prints_url('cart'),
-    // Correctif : la virgule remplaçait par erreur le "=>", ce qui faisait que
-    // cette clé n'était jamais réellement assignée au template.
-    'FAMILINK_RETURN_URL' => get_absolute_root_url() . ltrim($_SERVER['REQUEST_URI'], '/'),
+    // Correctif : on ne concatène plus get_absolute_root_url() avec
+    // REQUEST_URI (qui duplique le sous-dossier d'installation et
+    // provoquait une 404 après l'ajout au panier). Voir
+    // familink_prints_current_absolute_url() ci-dessus.
+    'FAMILINK_RETURN_URL' => familink_prints_current_absolute_url(),
     'PWG_TOKEN' => get_pwg_token(),
   ));
 
