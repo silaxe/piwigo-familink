@@ -48,13 +48,20 @@ ORDER BY c.created_at DESC, c.id DESC
   return array('items' => $items);
 }
 
+/**
+ * Crée les URLs temporaires de pont (bridge.php) pour chaque article du
+ * panier. C'est ici, pendant la requête du navigateur de
+ * l'utilisateur (clic "Envoyer la commande"), que l'ajout des bords
+ * blancs est calculé si nécessaire : bridge.php reste ainsi un simple
+ * serveur de fichiers rapide, sans logique de traitement d'image.
+ */
 function familink_prints_ws_bridge_create($params, &$service)
 {
   if (is_a_guest()) {
     return new PwgError(403, 'Auth required');
   }
 
-  global $prefixeTable, $user;
+  global $prefixeTable, $user, $conf;
   $uid = (int)$user['id'];
   $ttl = max(60, min(3600, (int)$params['ttl']));
 
@@ -66,21 +73,28 @@ WHERE c.user_id=' . $uid . '
 ORDER BY c.created_at DESC, c.id DESC
 ');
 
+  $pad_enabled = isset($conf['familink_pad_enabled']) ? !empty($conf['familink_pad_enabled']) : true;
+  $tolerance_pct = isset($conf['familink_pad_tolerance']) ? (float)$conf['familink_pad_tolerance'] : 1.0;
+  $tolerance = max(0, $tolerance_pct) / 100;
+
   $urls = array();
 
   foreach ($items as $it) {
+    $serve_info = familink_prints_resolve_serve_path($it, $pad_enabled, $tolerance);
+
     $token = familink_prints_token(64);
     $expires = date('Y-m-d H:i:s', time() + $ttl);
 
     pwg_query('
 INSERT INTO ' . $prefixeTable . 'familink_bridge_tokens
-(token, user_id, image_id, print_format, expires_at, created_at)
+(token, user_id, image_id, print_format, serve_path, expires_at, created_at)
 VALUES
 (
   "' . pwg_db_real_escape_string($token) . '",
   ' . $uid . ',
   ' . (int)$it['image_id'] . ',
   "' . pwg_db_real_escape_string($it['print_format']) . '",
+  "' . pwg_db_real_escape_string($serve_info['serve_path']) . '",
   "' . $expires . '",
   "' . familink_prints_now() . '"
 )
@@ -93,6 +107,11 @@ VALUES
       'path' => (string)$it['path'],
       'format' => (string)$it['print_format'],
       'copies' => (int)$it['copies'],
+      'padded' => (bool)$serve_info['padded'],
+      'pad_engine' => $serve_info['engine'],
+      'src_dimensions' => ($serve_info['src_w'] && $serve_info['src_h']) ? ($serve_info['src_w'] . 'x' . $serve_info['src_h']) : null,
+      'dest_dimensions' => ($serve_info['dest_w'] && $serve_info['dest_h']) ? ($serve_info['dest_w'] . 'x' . $serve_info['dest_h']) : null,
+      'pad_warning' => $serve_info['error'],
       'url' => get_absolute_root_url() . 'plugins/' . FAMILINK_PRINTS_ID . '/bridge.php?token=' . $token,
       'expires_at' => $expires,
     );

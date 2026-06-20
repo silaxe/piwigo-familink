@@ -31,6 +31,34 @@
     </p>
   </fieldset>
 
+  <fieldset>
+    <legend>Mise en page des tirages</legend>
+
+    <p>
+      <label>
+        <input type="checkbox" name="pad_enabled" value="1" {if $FAMILINK_PAD_ENABLED}checked{/if}>
+        Ajouter des bords blancs si le format ne correspond pas exactement
+      </label>
+    </p>
+
+    <p>
+      <label>Tolérance d'écart de ratio acceptée sans bordurage (%)</label><br>
+      <input type="number" name="pad_tolerance" value="{$FAMILINK_PAD_TOLERANCE}" min="0" max="20" step="0.5" size="6">
+      <span class="familink-meta">Au-delà de cet écart entre le ratio de la photo et le ratio du format choisi, des bords blancs sont ajoutés.</span>
+    </p>
+
+    {if $FAMILINK_PAD_ENGINE}
+      <p class="familink-meta">
+        Moteur de traitement d'image détecté sur ce serveur : <strong>{$FAMILINK_PAD_ENGINE}</strong>.
+      </p>
+    {else}
+      <p class="errors">
+        ⚠️ Ni l'extension PHP Imagick ni l'extension GD ne sont disponibles sur ce serveur :
+        les photos seront envoyées sans bordurage, quel que soit ce réglage.
+      </p>
+    {/if}
+  </fieldset>
+
   <p>
     <input class="button" type="submit" name="submit" value="Enregistrer">
   </p>
@@ -44,6 +72,20 @@
 
     <p>
       <input class="button" type="submit" name="test_api" value="Tester la connexion API">
+    </p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Cache des images bordurées</legend>
+
+    <p>
+      Les photos bordurées sont mises en cache pour éviter de refaire le traitement à chaque commande.
+      Le cache est automatiquement invalidé si la photo d'origine est remplacée dans Piwigo.
+    </p>
+
+    <p>
+      <input class="button" type="submit" name="clear_cache" value="Vider le cache des images bordurées"
+             onclick="return confirm('Vider le cache des images bordurées ? Elles seront régénérées à la prochaine commande.');">
     </p>
   </fieldset>
 </form>

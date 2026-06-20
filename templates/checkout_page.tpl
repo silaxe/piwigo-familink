@@ -166,15 +166,23 @@
 
         log('Photos envoyées :');
         bridge.urls.forEach(function (p, idx) {
-          log(
+          let line =
             (idx + 1) +
             '. image_id=' + p.image_id +
             ' | name=' + (p.name || '') +
             ' | file=' + (p.file || '') +
             ' | format=' + p.format +
             ' | copies=' + p.copies +
-            ' | url=' + p.url
-          );
+            ' | url=' + p.url;
+
+          if (p.padded) {
+            line += ' | 🖼️ bords blancs ajoutés (' + (p.pad_engine || '?') + ') : ' +
+              (p.src_dimensions || '?') + ' → ' + (p.dest_dimensions || '?');
+          } else if (p.pad_warning) {
+            line += ' | ⚠️ bordurage non appliqué : ' + p.pad_warning;
+          }
+
+          log(line);
         });
 
         const payload = {

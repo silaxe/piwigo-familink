@@ -123,7 +123,11 @@ try {
   $userId = isset($user['id']) ? (int)$user['id'] : 0;
 
   $payload = array(
-    'sandbox' => !empty($conf['sandbox']),
+    // Correctif : la clé de config est 'familink_sandbox' (cf. admin.php),
+    // pas 'sandbox'. Avec l'ancienne clé, ce flag était toujours false,
+    // donc les commandes étaient systématiquement envoyées en mode réel
+    // à Familink, même quand la case "Mode sandbox" était cochée.
+    'sandbox' => !empty($conf['familink_sandbox']),
     'recipient' => array(
       'company' => isset($recipient['company']) ? (string)$recipient['company'] : '',
       'first_name' => (string)$recipient['first_name'],

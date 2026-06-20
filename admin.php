@@ -3,6 +3,8 @@ defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
 
 global $template, $page, $conf;
 
+include_once(dirname(__FILE__) . '/include/image.inc.php');
+
 load_language('plugin.lang', dirname(__FILE__) . '/');
 
 $page['title'] = 'Familink Prints - Configuration';
@@ -21,14 +23,36 @@ if (isset($_POST['submit'])) {
   $sandbox = !empty($_POST['sandbox']) ? 1 : 0;
   $endpoint = $_POST['endpoint'] ?? '';
 
+  $pad_enabled = !empty($_POST['pad_enabled']) ? 1 : 0;
+  $pad_tolerance = isset($_POST['pad_tolerance']) ? (float)$_POST['pad_tolerance'] : 1.0;
+  if ($pad_tolerance < 0) {
+    $pad_tolerance = 0;
+  }
+  if ($pad_tolerance > 20) {
+    $pad_tolerance = 20;
+  }
+
   conf_update_param('familink_api_token', $api_token);
   conf_update_param('familink_sandbox', $sandbox);
   conf_update_param('familink_endpoint', $endpoint);
+  conf_update_param('familink_pad_enabled', $pad_enabled);
+  conf_update_param('familink_pad_tolerance', $pad_tolerance);
 
-// 🔥 FORCER relecture config
-load_conf_from_db();
+  // 🔥 FORCER relecture config
+  load_conf_from_db();
 
   $msg = 'Configuration enregistrée';
+}
+
+// ----------------------------
+// VIDER LE CACHE DES IMAGES TRAITÉES
+// ----------------------------
+if (isset($_POST['clear_cache'])) {
+
+  check_pwg_token();
+
+  $n = familink_prints_clear_cache();
+  $msg = $n . ' fichier(s) supprimé(s) du cache des images bordurées.';
 }
 
 // ----------------------------
@@ -178,14 +202,23 @@ $msg = '
 
 $api_token = isset($conf['familink_api_token']) ? $conf['familink_api_token'] : '';
 $sandbox = !empty($conf['familink_sandbox']);
+$pad_enabled = isset($conf['familink_pad_enabled']) ? !empty($conf['familink_pad_enabled']) : true;
+$pad_tolerance = isset($conf['familink_pad_tolerance']) ? (float)$conf['familink_pad_tolerance'] : 1.0;
+
+$pad_engine_available = extension_loaded('imagick')
+  ? 'Imagick'
+  : (extension_loaded('gd') ? 'GD' : null);
 
 $template->assign(array(
-  'FAMILINK_API_TOKEN' => $api_token,
-  'FAMILINK_SANDBOX'   => $sandbox,
-  'FAMILINK_MSG'       => $msg,
-  'FAMILINK_MSG_TYPE'  => $msg_type,
-  'FAMILINK_ACTION'    => get_root_url() . 'admin.php?page=plugin-familink_prints',
-  'PWG_TOKEN'          => get_pwg_token(),
+  'FAMILINK_API_TOKEN'     => $api_token,
+  'FAMILINK_SANDBOX'       => $sandbox,
+  'FAMILINK_PAD_ENABLED'   => $pad_enabled,
+  'FAMILINK_PAD_TOLERANCE' => $pad_tolerance,
+  'FAMILINK_PAD_ENGINE'    => $pad_engine_available,
+  'FAMILINK_MSG'           => $msg,
+  'FAMILINK_MSG_TYPE'      => $msg_type,
+  'FAMILINK_ACTION'        => get_root_url() . 'admin.php?page=plugin-familink_prints',
+  'PWG_TOKEN'              => get_pwg_token(),
 ));
 
 $template->set_filename('plugin_admin_content', dirname(__FILE__) . '/templates/admin.tpl');

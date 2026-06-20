@@ -7,3 +7,4 @@ Thumbs.db
 config.inc.php
 local/
 cache/
+_cache/

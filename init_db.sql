@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS piwigo_familink_bridge_tokens (
   user_id INT NOT NULL,
   image_id INT NOT NULL,
   print_format ENUM('10x15cm', '15x20cm') NOT NULL,
+  serve_path VARCHAR(500) NOT NULL DEFAULT '',
   expires_at DATETIME NOT NULL,
   created_at DATETIME NOT NULL,
   UNIQUE KEY uniq_token (token),

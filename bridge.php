@@ -26,7 +26,7 @@ $token = $_GET['token'];
 global $prefixeTable;
 
 $row = pwg_db_fetch_assoc(pwg_query('
-SELECT user_id, image_id, expires_at
+SELECT user_id, image_id, serve_path, expires_at
 FROM ' . $prefixeTable . 'familink_bridge_tokens
 WHERE token="' . pwg_db_real_escape_string($token) . '"
 LIMIT 1
@@ -48,21 +48,35 @@ if (strtotime($row['expires_at']) < time()) {
 
 $image_id = (int)$row['image_id'];
 
-$img = pwg_db_fetch_assoc(pwg_query('
-SELECT id, path, file
-FROM ' . $prefixeTable . 'images
-WHERE id=' . $image_id . '
-LIMIT 1
-'));
+// serve_path est calculé une fois pour toutes au moment de la création
+// du token (cf. include/api.inc.php) : c'est soit le chemin de l'image
+// d'origine, soit celui d'une version mise en cache avec bords blancs
+// ajoutés. bridge.php n'a donc plus besoin de faire le moindre
+// traitement d'image ni la moindre jointure SQL supplémentaire.
+$relativePath = (string)$row['serve_path'];
 
-if (!$img) {
-  familink_bridge_log('Image not found in DB for image_id=' . $image_id);
+if ($relativePath === '') {
+  // Compatibilité avec des tokens créés avant l'ajout de la colonne
+  // serve_path (ne devrait plus arriver après une mise à jour propre du
+  // plugin, mais on évite un échec sec si jamais).
+  $img = pwg_db_fetch_assoc(pwg_query('
+    SELECT path FROM ' . $prefixeTable . 'images WHERE id=' . $image_id . ' LIMIT 1
+  '));
+  if ($img) {
+    $relativePath = (string)$img['path'];
+    if (strpos($relativePath, './') === 0) {
+      $relativePath = substr($relativePath, 2);
+    }
+  }
+}
+
+if ($relativePath === '') {
+  familink_bridge_log('No path resolved for image_id=' . $image_id);
   http_response_code(404);
   echo 'Image not found';
   exit;
 }
 
-$relativePath = (string)$img['path'];
 $full = PHPWG_ROOT_PATH . ltrim($relativePath, '/');
 
 if (!is_file($full) || !is_readable($full)) {
@@ -76,7 +90,7 @@ if (!is_file($full) || !is_readable($full)) {
   exit;
 }
 
-$filename = basename((string)$img['file']);
+$filename = basename($full);
 $filesize = @filesize($full);
 if ($filesize === false) {
   $filesize = 0;

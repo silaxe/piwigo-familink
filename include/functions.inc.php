@@ -49,22 +49,14 @@ function familink_prints_purge_expired_tokens()
   pwg_query('DELETE FROM ' . $prefixeTable . 'familink_bridge_tokens WHERE expires_at < "' . familink_prints_now() . '"');
 }
 
-function familink_prints_dispatch()
+/**
+ * Point d'entrée unique pour toutes les actions du plugin. $action est
+ * toujours fourni par l'appelant (main.inc.php) : on ne relit plus
+ * $_GET ici, pour n'avoir qu'une seule source de vérité sur l'action en
+ * cours.
+ */
+function familink_prints_dispatch($action)
 {
-  // Récupération de l'action depuis ton système
-  $action = '';
-
-if (isset($_GET['familink_prints'])) {
-  $action = $_GET['familink_prints'];
-} elseif (isset($_GET['action'])) {
-  $action = $_GET['action'];
-}
-
-  if (empty($action)) {
-    familink_prints_page_cart();
-    return;
-  }
-
   switch ($action) {
 
     case 'add':
@@ -87,37 +79,12 @@ if (isset($_GET['familink_prints'])) {
       familink_prints_page_checkout();
       break;
 
+    case 'cart':
     default:
       familink_prints_page_cart();
+      break;
   }
 }
-
-//function familink_prints_dispatch($action)
-//{
-//  familink_prints_purge_expired_tokens();
-//
-//  switch ($action) {
-//    case 'add':
-//      familink_prints_action_add();
-//      break;
-//    case 'remove':
-//      familink_prints_action_remove();
-//      break;
-//    case 'update':
-//      familink_prints_action_update();
-//      break;
-//    case 'checkout':
-//      familink_prints_page_checkout();
-//      break;
-//    case 'cart':
-//    default:
-//      familink_prints_page_cart();
-//      break;
-//    case 'empty':
-//      familink_prints_action_empty();
-//      break;
-//  }
-//}
 
 function familink_prints_action_add()
 {
@@ -148,25 +115,24 @@ ON DUPLICATE KEY UPDATE copies = copies + 1
 ';
   pwg_query($sql);
 
-$redirect = '';
+  $redirect = '';
 
-// 1. Priorité au champ POST
-if (!empty($_POST['redirect'])) {
-  $redirect = $_POST['redirect'];
-}
-// 2. fallback sur HTTP_REFERER
-elseif (!empty($_SERVER['HTTP_REFERER'])) {
-  $redirect = $_SERVER['HTTP_REFERER'];
-}
+  // 1. Priorité au champ POST
+  if (!empty($_POST['redirect'])) {
+    $redirect = $_POST['redirect'];
+  }
+  // 2. fallback sur HTTP_REFERER
+  elseif (!empty($_SERVER['HTTP_REFERER'])) {
+    $redirect = $_SERVER['HTTP_REFERER'];
+  }
 
-// 3. sécurité : uniquement URLs internes
-if (!empty($redirect) && strpos($redirect, get_absolute_root_url()) === 0) {
-  redirect($redirect);
-}
+  // 3. sécurité : uniquement URLs internes
+  if (!empty($redirect) && strpos($redirect, get_absolute_root_url()) === 0) {
+    redirect($redirect);
+  }
 
-// fallback final
-redirect(familink_prints_url('cart'));
-
+  // fallback final
+  redirect(familink_prints_url('cart'));
 }
 
 function familink_prints_action_remove()
@@ -343,11 +309,11 @@ WHERE c.user_id=' . $uid . '
 ORDER BY c.created_at DESC, c.id DESC
 ');
 
-$total_photos = 0;
+  $total_photos = 0;
 
-foreach ($items as $it) {
-  $total_photos += (int)$it['copies'];
-}
+  foreach ($items as $it) {
+    $total_photos += (int)$it['copies'];
+  }
 
   $page['title'] = 'Panier Familink';
 
@@ -356,35 +322,27 @@ foreach ($items as $it) {
     realpath(FAMILINK_PRINTS_PATH . 'templates/cart_page.tpl')
   );
 
-foreach ($items as &$item) {
-  $relativePath = isset($item['path']) ? (string)$item['path'] : '';
+  foreach ($items as &$item) {
+    $relativePath = isset($item['path']) ? (string)$item['path'] : '';
 
-  // Piwigo stocke souvent les chemins avec "./"
-  if (strpos($relativePath, './') === 0) {
-    $relativePath = substr($relativePath, 2);
+    // Piwigo stocke souvent les chemins avec "./"
+    if (strpos($relativePath, './') === 0) {
+      $relativePath = substr($relativePath, 2);
+    }
+
+    $item['thumb_url'] = get_absolute_root_url() . ltrim($relativePath, '/');
   }
+  unset($item);
 
-  $item['thumb_url'] = get_absolute_root_url() . ltrim($relativePath, '/');
-}
-unset($item);
-
-$template->assign(array(
-  'FAMILINK_ITEMS' => $items,
-  'FAMILINK_TOTAL_PHOTOS' => $total_photos,
-  'FAMILINK_UPDATE_URL' => familink_prints_url('update'),
-  'FAMILINK_REMOVE_URL' => familink_prints_url('remove'),
-  'FAMILINK_CHECKOUT_URL' => familink_prints_url('checkout'),
-  'FAMILINK_EMPTY_URL' => familink_prints_url('empty'),
-  'FAMILINK_CSRF' => get_pwg_token(),
-));
-
-//$template->assign(array(
-//  'FAMILINK_ITEMS' => $items,
-//  'FAMILINK_UPDATE_URL' => familink_prints_url('update'),
-//  'FAMILINK_REMOVE_URL' => familink_prints_url('remove'),
-//  'FAMILINK_CHECKOUT_URL' => familink_prints_url('checkout'),
-//  'FAMILINK_CSRF' => get_pwg_token(),
-//));
+  $template->assign(array(
+    'FAMILINK_ITEMS' => $items,
+    'FAMILINK_TOTAL_PHOTOS' => $total_photos,
+    'FAMILINK_UPDATE_URL' => familink_prints_url('update'),
+    'FAMILINK_REMOVE_URL' => familink_prints_url('remove'),
+    'FAMILINK_CHECKOUT_URL' => familink_prints_url('checkout'),
+    'FAMILINK_EMPTY_URL' => familink_prints_url('empty'),
+    'FAMILINK_CSRF' => get_pwg_token(),
+  ));
 
   $template->assign_var_from_handle('CONTENT', 'familink_cart_content');
 }
