@@ -171,6 +171,14 @@ familink_prints/
 
 ## 📝 Changelog
 
+### 1.0.4: 
+
+* **Fix:** added the Plugin URI field (i.e., piwigo.org)
+Without this header field, Piwigo had no way to link the locally 
+installed plugin to its entry in the piwigo.org catalog. As a result, 
+the native update notification could never be triggered, even when 
+a new version was released.
+
 ### 1.0.3
 
 * **Fix (critical):** adding a photo to the cart returned a 404 error

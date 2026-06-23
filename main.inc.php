@@ -1,9 +1,10 @@
 <?php
 /*
-Version: 1.0.3
+Version: 1.0.4
 Plugin Name: Familink Prints
-Author: You
-Description: Piwigo cart + temporary URLs + Familink sandbox checkout for 10x15 / 15x20 prints,
+Plugin URI: https://piwigo.org/ext/extension_view.php?eid=1071
+Author: Silaxe & Claude AI
+Description: Piwigo cart + temporary URLs + Familink checkout for 10x15 / 15x20 prints,
              avec ajout automatique de bords blancs pour les photos qui ne sont pas exactement
              au format demandé.
 Has Settings: true
